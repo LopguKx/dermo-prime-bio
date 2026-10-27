@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LopguKx</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #05030f url('https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=1920&auto=format&fit=crop') center/cover no-repeat fixed;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      color: #fff;
+      
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+    
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: -1;
+    }
+
+    /* ===== ЭКРАН ВХОДА ===== */
+    #overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: #05030f;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: opacity 0.8s ease;
+    }
+    #overlay.hidden { opacity: 0; pointer-events: none; }
+    
+    .overlay-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .overlay-text {
+      font-size: 1.6rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-shadow: 0 0 15px rgba(255, 59, 124, 0.6);
+      animation: pulse 2s infinite;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .overlay-text.sub-text {
+      font-size: 1.1rem;
+      color: #777;
+      text-shadow: none;
+      animation: none;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 0.9; }
+      50% { transform: scale(1.05); opacity: 1; }
+    }
+
+    canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    #scene  { z-index: 0; }
+    #hearts { z-index: 1; }
+
+    /* ===== БАННЕР ===== */
+    .card {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      
+      background: rgba(255, 255, 255, 0.02);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 22px;
+      padding: 34px 26px 24px;
+      max-width: 460px;
+      width: 90%;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      will-change: transform;
+      transform-origin: center center;
+    }
+
+    /* ===== АВАТАРКА ===== */
+    .avatar-wrap {
+      position: relative;
+      display: inline-block;
+      margin-bottom: 12px;
+      border-radius: 50%;
+      overflow: hidden;
+    }
+
+    .avatar {
+      display: block;
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      transition: transform 0.3s ease;
+    }
+
+    .hover-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.7);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+      padding: 0 10px;
+    }
+
+    .avatar-wrap:hover .hover-overlay { opacity: 1; }
+
+    .flash-text {
+      font-size: 0.95rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      text-align: center;
+      line-height: 1.1;
+      animation: flash-bw 0.4s infinite alternate;
+    }
+
+    @keyframes flash-bw {
+      0% { color: #fff; text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000; }
+      100% { color: #000; text-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff; }
+    }
+
+    .cig-sticker {
+      font-size: 2rem;
+      margin-top: 4px;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+    }
+
+    /* ===== НИК ===== */
+    .name-wrap {
+      display: inline-block;
+      margin-bottom: 20px;
+      animation: nameJitter 0.12s linear infinite;
+      cursor: default;
+    }
+    @keyframes nameJitter {
+      0%, 100% { transform: translate(0, 0); }
+      25% { transform: translate(-1px, 1px); }
+      50% { transform: translate(1px, -1px); }
+      75% { transform: translate(-1px, -1px); }
+    }
+
+    .name {
+      position: relative;
+      display: inline-block;
+      font-size: 2.4rem;
+      font-weight: 900;
+      letter-spacing: 2px;
+      color: #fff;
+      text-shadow: 
+        0 0 10px rgba(255,255,255,0.5),
+        2px 0 rgba(168, 85, 247, 0.9),
+        -2px 0 rgba(216, 180, 254, 0.9),
+        0 0 2px #000;
+      user-select: none;
+      font-family: 'Inter', monospace;
+      transition: color 0.2s, text-shadow 0.2s;
+    }
+    .name::before, .name::after {
+      content: attr(data-text);
+      position: absolute;
+      top: 0; left: 0; width: 100%;
+      pointer-events: none;
+    }
+    .name::before {
+      color: #a855f7;
+      clip-path: inset(0 0 55% 0);
+      animation: glitchTop 2.5s infinite linear alternate-reverse;
+    }
+    .name::after {
+      color: #d8b4fe;
+      clip-path: inset(55% 0 0 0);
+      animation: glitchBot 2s infinite linear alternate-reverse;
+    }
+    @keyframes glitchTop {
+      0% { transform: translate(0, 0); clip-path: inset(0 0 80% 0); }
+      20% { transform: translate(2px, 0); clip-path: inset(40% 0 40% 0); }
+      40% { transform: translate(1px, 0); clip-path: inset(60% 0 20% 0); }
+      60% { transform: translate(2px, 0); clip-path: inset(10% 0 70% 0); }
+      80% { transform: translate(1px, 0); clip-path: inset(80% 0 5% 0); }
+      100% { transform: translate(0, 0); clip-path: inset(0 0 80% 0); }
+    }
+    @keyframes glitchBot {
+      0% { transform: translate(0, 0); clip-path: inset(70% 0 0 0); }
+      25% { transform: translate(-2px, 0); clip-path: inset(30% 0 40% 0); }
+      50% { transform: translate(-1px, 0); clip-path: inset(50% 0 20% 0); }
+      75% { transform: translate(-2px, 0); clip-path: inset(80% 0 5% 0); }
+      100% { transform: translate(0, 0); clip-path: inset(70% 0 0 0); }
+    }
+
+    /* === КРОВАВО-КРАСНЫЙ РЕЖИМ ПРИ НАВЕДЕНИИ === */
+    .name.blood-mode {
+      color: #ff0000 !important;
+      text-shadow: 
+        0 0 15px #ff0000,
+        0 0 30px #ff0000,
+        2px 0 #8b0000,
+        -2px 0 #8b0000,
+        0 0 2px #000 !important;
+      animation: none;
+    }
+    .name.blood-mode::before { color: #8b0000 !important; animation: none; }
+    .name.blood-mode::after { color: #ff0000 !important; animation: none; }
+
+    /* ===== ИКОНКИ ===== */
+    .links {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 20px;
+      width: 100%;
+    }
+    
+    .icon-wrap, .discord-icon, .steam-icon {
+      color: #fff;
+      font-size: 1.4rem;
+      width: 42px; height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      background: transparent;
+      border: none;
+      transition: 0.25s ease;
+      position: relative;
+      cursor: pointer;
+    }
+    
+    .icon-wrap:hover { transform: scale(1.2); color: #a855f7; }
+    .discord-icon:hover { transform: scale(1.2); color: #5865F2; }
+    .steam-icon:hover { transform: scale(1.2); color: #66c0f4; }
+
+    /* ===== ТУЛТИПЫ ===== */
+    .icon-wrap:hover .tooltip,
+    .discord-icon:hover .tooltip,
+    .steam-icon:hover .tooltip {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    .tooltip {
+      position: absolute; bottom: 120%; left: 50%;
+      transform: translateX(-50%) translateY(6px);
+      background: rgba(0, 0, 0, 0.92);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 6px 10px; border-radius: 8px;
+      font-size: 0.7rem; font-family: monospace; letter-spacing: 1px;
+      white-space: nowrap; opacity: 0; pointer-events: none;
+      transition: 0.2s ease; z-index: 5;
+      
+      background: linear-gradient(90deg, #ff75ff, #ff75dd, #ff75ba, #ff7598, #ff7575, #ff9875, #ffba75, #ffdd75, #ffff75, #ddff75, #baff75, #98ff75, #75ff75, #75ff98, #75ffba, #75ffdd, #75ffff, #75ddff, #75baff, #7598ff, #7575ff, #9875ff, #ba75ff, #dd75ff, #ff75ff);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      animation: rainbowMove 3s linear infinite;
+    }
+    @keyframes rainbowMove {
+      0% { background-position: 0% center; }
+      100% { background-position: 200% center; }
+    }
+
+    /* ===== ПЛЕЕР ===== */
+    .player {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: transparent;
+      border: none;
+      text-align: left;
+      padding: 0;
+      width: 100%;
+    }
+    .cover {
+      position: relative;
+      width: 54px; height: 54px;
+      border-radius: 8px;
+      overflow: hidden;
+      flex-shrink: 0;
+      background: linear-gradient(135deg, #ff8cbf, #ff3b7c);
+      border: none; 
+      cursor: pointer; /* Добавлено для понимания, что кликабельно */
+    }
+    .cover img {
+      position: absolute;
+      inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+
+    .player-info {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    /* === РАДУЖНЫЙ ГЛИТЧ ДЛЯ НАЗВАНИЯ ТРЕКА === */
+    .track-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      transition: all 0.3s ease;
+    }
+    
+    .track-title.rainbow-glitch {
+      background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3, #ff0000);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      animation: rainbowMove 0.5s linear infinite, titleGlitch 0.2s infinite;
+      font-weight: 900;
+      letter-spacing: 1px;
+    }
+
+    @keyframes titleGlitch {
+      0% { transform: translate(0, 0); }
+      25% { transform: translate(-2px, 1px); }
+      50% { transform: translate(2px, -1px); }
+      75% { transform: translate(-1px, -1px); }
+      100% { transform: translate(0, 0); }
+    }
+
+    .progress-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .time {
+      font-size: 0.75rem;
+      color: #b0b0c0;
+      font-family: 'SF Mono', Consolas, monospace;
+      min-width: 30px;
+    }
+    .progress-bar {
+      flex: 1;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 2px;
+      cursor: pointer;
+      position: relative;
+      transition: height 0.2s;
+    }
+    .progress-bar:hover { height: 4px; }
+    .progress-fill {
+      height: 100%;
+      background: #fff;
+      border-radius: 2px;
+      width: 0%;
+      pointer-events: none;
+    }
+
+    .play-btn {
+      background: transparent;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      font-size: 1.2rem;
+      padding: 4px;
+      transition: 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .play-btn:hover { transform: scale(1.1); }
+    .play-btn:active { transform: scale(0.9); }
+
+    #bg-music { display: none; }
+
+    /* ===== УВЕДОМЛЕНИЕ О КОПИРОВАНИИ ===== */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: rgba(88, 101, 242, 0.95);
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 10000;
+      pointer-events: none;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ===== СНЕЖНЫЙ ЧЕЛОВЕК ===== */
+    #snowman-container {
+      position: fixed;
+      bottom: -300px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: bottom 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      pointer-events: none;
+    }
+    #snowman-container.active {
+      bottom: 20px;
+    }
+    .speech-bubble {
+      background: #fff;
+      color: #000;
+      padding: 15px 20px;
+      border-radius: 20px;
+      font-size: 1.2rem;
+      font-weight: 800;
+      position: relative;
+      margin-bottom: 10px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+      border: 2px solid #000;
+      text-align: center;
+      animation: bubblePop 0.3s ease-out;
+    }
+    .speech-bubble::after {
+      content: '';
+      position: absolute;
+      bottom: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 15px 15px 0;
+      border-style: solid;
+      border-color: #fff transparent transparent transparent;
+    }
+    .speech-bubble::before {
+      content: '';
+      position: absolute;
+      bottom: -18px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 17px 17px 0;
+      border-style: solid;
+      border-color: #000 transparent transparent transparent;
+      z-index: -1;
+    }
+    #snowman {
+      font-size: 120px;
+      line-height: 1;
+      filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));
+      animation: snowmanBounce 1s infinite alternate;
+    }
+    @keyframes bubblePop {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    @keyframes snowmanBounce {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-10px); }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="overlay">
+    <div class="overlay-content">
+      <div class="overlay-text">
+        кликни если сосал <i class="fas fa-heart" style="color: #ff3b7c; filter: drop-shadow(0 0 10px rgba(255,59,124,0.8));"></i>
+      </div>
+      <div class="overlay-text sub-text">
+        click if you sucked <i class="fas fa-heart" style="color: #777;"></i>
+      </div>
+    </div>
+  </div>
+
+  <canvas id="scene"></canvas>
+  <canvas id="hearts"></canvas>
+
+  <div class="card" id="card">
+    
+    <!-- Аватарка -->
+    <div class="avatar-wrap">
+      <img class="avatar" src="https://i.pinimg.com/736x/cd/db/5e/cddb5ea3f1bf1ab72462897787ca61bc.jpg" alt="avatar" />
+      <div class="hover-overlay">
+        <span class="flash-text">еще не<br>умер</span>
+        <span class="cig-sticker">🚬</span>
+      </div>
+    </div>
+
+    <!-- Ник -->
+    <div class="name-wrap" id="nameWrap">
+      <div class="name" id="name" data-text="LopguKx">LopguKx</div>
+    </div>
+
+    <!-- Иконки -->
+    <div class="links">
+      <div class="icon-wrap" data-glitch>
+        <i class="fas fa-question"></i>
+        <span class="tooltip"></span>
+      </div>
+      
+      <div class="discord-icon" id="discordBtn">
+        <i class="fab fa-discord"></i>
+        <span class="tooltip">нажми чтобы скопировать</span>
+      </div>
+      
+      <a href="https://steamcommunity.com/id/Lopguk/" target="_blank" class="steam-icon">
+        <i class="fab fa-steam"></i>
+        <span class="tooltip"></span>
+      </a>
+      
+      <div class="icon-wrap" data-glitch>
+        <i class="fas fa-question"></i>
+        <span class="tooltip"></span>
+      </div>
+      <div class="icon-wrap" data-glitch>
+        <i class="fas fa-question"></i>
+        <span class="tooltip"></span>
+      </div>
+    </div>
+
+    <!-- Плеер -->
+    <div class="player">
+      <div class="cover" id="coverBtn">
+        <img src="cover.jpg" alt="" onerror="this.style.display='none'" />
+      </div>
+      
+      <div class="player-info">
+        <div class="track-title" id="trackTitle">dermo-prime</div>
+        <div class="progress-row">
+          <span class="time" id="currentTime">0:00</span>
+          <div class="progress-bar" id="progressBar">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+          <span class="time" id="totalTime">0:00</span>
+        </div>
+      </div>
+
+      <button class="play-btn" id="playBtn"><i class="fas fa-play" id="playIcon"></i></button>
+    </div>
+
+    <audio id="bg-music" loop preload="auto">
+      <source src="dec4y-em.mp3" type="audio/mpeg" />
+    </audio>
+  </div>
+
+  <!-- СНЕЖНЫЙ ЧЕЛОВЕК -->
+  <div id="snowman-container">
+    <div class="speech-bubble">айоеу чувак хочешь подкурить? 🚬</div>
+    <div id="snowman">⛄</div>
+  </div>
+
+  <script>
+    // ============ СНЕЖНЫЙ ЧЕЛОВЕК ============
+    const coverBtn = document.getElementById('coverBtn');
+    const snowmanContainer = document.getElementById('snowman-container');
+    let snowmanTimeout;
+
+    coverBtn.addEventListener('click', (e) => {
+      e.stopPropagation(); // Чтобы клик не срабатывал на другие элементы
+      
+      // Показываем снеговика
+      snowmanContainer.classList.add('active');
+      
+      // Озвучка
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel(); // Отменяем предыдущую речь
+        const utterance = new SpeechSynthesisUtterance("айоеу чувак хочешь подкурить?");
+        utterance.lang = 'ru-RU';
+        utterance.rate = 0.9;
+        utterance.pitch = 0.4; // Низкий бас
+        window.speechSynthesis.speak(utterance);
+      }
+      
+      // Скрываем через 4 секунды
+      clearTimeout(snowmanTimeout);
+      snowmanTimeout = setTimeout(() => {
+        snowmanContainer.classList.remove('active');
+      }, 4000);
+    });
+
+    // ============ НАЗВАНИЕ ТРЕКА (РАДУЖНЫЙ ГЛИТЧ) ============
+    const trackTitle = document.getElementById('trackTitle');
+    const originalTitle = 'dermo-prime';
+    const glitchTitle = "dermo-prime IT'S ME";
+
+    setInterval(() => {
+      if (trackTitle.textContent === originalTitle) {
+        trackTitle.textContent = glitchTitle;
+        trackTitle.classList.add('rainbow-glitch');
+        
+        setTimeout(() => {
+          trackTitle.textContent = originalTitle;
+          trackTitle.classList.remove('rainbow-glitch');
+        }, 3000);
+      }
+    }, 8000);
+
+    // ============ НИК (BLOODSEEKER) ============
+    const nameWrap = document.getElementById('nameWrap');
+    const nameEl = document.getElementById('name');
+    const originalName = 'LopguKx';
+    const bloodName = 'BLOODSEEKER';
+    const glitchChars = '!@#$%^&*()_+-=[]{}|;:,.<>?/~`01§±¥¢£';
+    let isHovered = false;
+
+    nameWrap.addEventListener('mouseenter', () => {
+      isHovered = true;
+      nameEl.textContent = bloodName;
+      nameEl.setAttribute('data-text', bloodName);
+      nameEl.classList.add('blood-mode');
+    });
+
+    nameWrap.addEventListener('mouseleave', () => {
+      isHovered = false;
+      nameEl.textContent = originalName;
+      nameEl.setAttribute('data-text', originalName);
+      nameEl.classList.remove('blood-mode');
+    });
+
+    setInterval(() => {
+      if (isHovered) return;
+      if (Math.random() > 0.4) { 
+        const arr = originalName.split('');
+        const n = 1 + Math.floor(Math.random() * 2); 
+        for (let k = 0; k < n; k++) {
+          arr[Math.floor(Math.random() * arr.length)] = glitchChars[Math.floor(Math.random() * glitchChars.length)];
+        }
+        const g = arr.join('');
+        nameEl.textContent = g;
+        nameEl.setAttribute('data-text', g);
+        setTimeout(() => {
+          if(!isHovered) {
+            nameEl.textContent = originalName;
+            nameEl.setAttribute('data-text', originalName);
+          }
+        }, 50 + Math.random() * 50);
+      }
+    }, 250); 
+
+    // ============ ДИСКОРД ============
+    const discordBtn = document.getElementById('discordBtn');
+    discordBtn.addEventListener('click', () => {
+      const username = 'lopgukx';
+      const copyText = (text) => {
+        if (navigator.clipboard && window.isSecureContext) {
+          return navigator.clipboard.writeText(text);
+        } else {
+          let textArea = document.createElement("textarea");
+          textArea.value = text;
+          textArea.style.position = "absolute";
+          textArea.style.left = "-999999px";
+          document.body.prepend(textArea);
+          textArea.select();
+          try { document.execCommand('copy'); } catch (e) { console.error(e); }
+          textArea.remove();
+          return Promise.resolve();
+        }
+      };
+
+      copyText(username).then(() => {
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.innerHTML = '<i class="fas fa-check-circle"></i> скопирован nick';
+        document.body.appendChild(toast);
+        setTimeout(() => toast.classList.add('show'), 10);
+        setTimeout(() => {
+          toast.classList.remove('show');
+          setTimeout(() => toast.remove(), 300);
+        }, 2000);
+      });
+    });
+
+    // ============ ЭКРАН ВХОДА ============
+    const overlay = document.getElementById('overlay');
+    const audio = document.getElementById('bg-music');
+    
+    overlay.addEventListener('click', () => {
+      overlay.classList.add('hidden');
+      audio.volume = 0.2;
+      audio.play().then(() => setPlaying(true)).catch(() => {});
+    });
+
+    // ============ ПЛЕЕР ============
+    const playBtn = document.getElementById("playBtn");
+    const playIcon = document.getElementById("playIcon");
+    const progressBar = document.getElementById("progressBar");
+    const progressFill = document.getElementById("progressFill");
+    const currentTimeEl = document.getElementById("currentTime");
+    const totalTimeEl = document.getElementById("totalTime");
+
+    function fmt(s) {
+      if (!isFinite(s) || s < 0) return "0:00";
+      return Math.floor(s / 60) + ":" + Math.floor(s % 60).toString().padStart(2, "0");
+    }
+    function updateUI() {
+      if (audio.duration && isFinite(audio.duration)) {
+        totalTimeEl.textContent = fmt(audio.duration);
+        progressFill.style.width = (audio.currentTime / audio.duration) * 100 + "%";
+      }
+      currentTimeEl.textContent = fmt(audio.currentTime);
+    }
+    audio.addEventListener("loadedmetadata", updateUI);
+    audio.addEventListener("durationchange", updateUI);
+    audio.addEventListener("timeupdate", updateUI);
+
+    function setPlaying(on) {
+      playIcon.className = on ? "fas fa-pause" : "fas fa-play";
+    }
+    
+    playBtn.addEventListener("click", () => {
+      if (audio.paused) audio.play().then(() => setPlaying(true)).catch(() => {});
+      else { audio.pause(); setPlaying(false); }
+    });
+
+    progressBar.addEventListener("click", (e) => {
+      if (!audio.duration || !isFinite(audio.duration)) return;
+      const r = progressBar.getBoundingClientRect();
+      audio.currentTime = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * audio.duration;
+      updateUI();
+    });
+
+    audio.addEventListener("error", () => {
+      trackTitle.textContent = "dec4y-em.mp3 не найден";
+    });
+
+    // ============ ГЛИТЧ-ПОДСКАЗКИ ============
+    const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}<>?/|~";
+    function randStr(len) {
+      let s = "";
+      for (let k = 0; k < len; k++) s += CHARS[Math.floor(Math.random() * CHARS.length)];
+      return s;
+    }
+    document.querySelectorAll("[data-glitch]").forEach((el) => {
+      const tip = el.querySelector(".tooltip");
+      if (!tip) return;
+      let timer = null;
+      el.addEventListener("mouseenter", () => {
+        const len = 18 + Math.floor(Math.random() * 10);
+        tip.textContent = randStr(len);
+        timer = setInterval(() => { tip.textContent = randStr(len); }, 70);
+      });
+      el.addEventListener("mouseleave", () => {
+        clearInterval(timer);
+        tip.textContent = "";
+      });
+    });
+
+    // ============ СЦЕНА И СЕРДЕЧКИ ============
+    const sceneCanvas = document.getElementById("scene");
+    const sceneCtx = sceneCanvas.getContext("2d");
+    const heartsCanvas = document.getElementById("hearts");
+    const heartsCtx = heartsCanvas.getContext("2d");
+    const cardEl = document.getElementById("card");
+
+    let W, H;
+    function resize() {
+      W = window.innerWidth; H = window.innerHeight;
+      [sceneCanvas, heartsCanvas].forEach(c => { c.width = W; c.height = H; });
+    }
+    resize();
+    window.addEventListener("resize", resize);
+
+    const stars = [];
+    for (let s = 0; s < 180; s++) {
+      stars.push({ x: Math.random() * W, y: Math.random() * H * 0.72, r: 0.3 + Math.random() * 1.8, phase: Math.random() * Math.PI * 2, speed: 0.3 + Math.random() * 2, hue: 200 + Math.random() * 60 });
+    }
+
+    const comets = [];
+
+    const heartSprite = document.createElement("canvas");
+    heartSprite.width = heartSprite.height = 64;
+    {
+      const hc = heartSprite.getContext("2d");
+      hc.translate(32, 32);
+      hc.beginPath();
+      hc.moveTo(0, 12); hc.bezierCurveTo(-20, -8, -30, -24, -15, -25);
+      hc.bezierCurveTo(-7, -26, 0, -16, 0, -12); hc.bezierCurveTo(0, -16, 7, -26, 15, -25);
+      hc.bezierCurveTo(30, -24, 20, -8, 0, 12); hc.closePath();
+      hc.fillStyle = "#000"; hc.fill();
+      hc.lineWidth = 2; hc.strokeStyle = "rgba(255,255,255,0.5)"; hc.stroke();
+    }
+
+    const HEART_COUNT = 300;
+    const hearts = [];
+    for (let s = 0; s < HEART_COUNT; s++) {
+      hearts.push({ 
+        x: Math.random() * W, 
+        y: Math.random() * H, 
+        vx: (Math.random() - 0.5) * 1.5, 
+        vy: (Math.random() - 0.5) * 1.5, 
+        size: 24 + Math.random() * 24,
+        rot: Math.random() * Math.PI * 2, 
+        rotSpeed: (Math.random() - 0.5) * 0.05, 
+        wander: Math.random() * Math.PI * 2 
+      });
+    }
+
+    const mouse = { x: -9999, y: -9999, down: false, overCard: false };
+    window.addEventListener("mousemove", (e) => { mouse.x = e.clientX; mouse.y = e.clientY; });
+    window.addEventListener("mousedown", () => { mouse.down = true; });
+    window.addEventListener("mouseup",   () => { mouse.down = false; });
+    window.addEventListener("mouseleave",() => { mouse.x = -9999; mouse.y = -9999; mouse.down = false; });
+    
+    cardEl.addEventListener("mouseenter", () => { mouse.overCard = true; });
+    cardEl.addEventListener("mouseleave", () => { mouse.overCard = false; });
+
+    window.addEventListener("touchstart", (e) => {
+      const t = e.touches[0]; mouse.x = t.clientX; mouse.y = t.clientY; mouse.down = true;
+    }, { passive: true });
+    window.addEventListener("touchmove", (e) => {
+      const t = e.touches[0]; mouse.x = t.clientX; mouse.y = t.clientY;
+    }, { passive: true });
+    window.addEventListener("touchend", () => { mouse.down = false; }, { passive: true });
+
+    let cardOffX = 0, cardOffY = 0, cardVelX = 0, cardVelY = 0;
+    let cardRot = 0, cardRotVel = 0;
+
+    function getCardRect() {
+      const cw = cardEl.offsetWidth, ch = cardEl.offsetHeight;
+      const cx = W / 2 + cardOffX, cy = H / 2 + cardOffY;
+      return { left: cx - cw / 2, right: cx + cw / 2, top: cy - ch / 2, bottom: cy + ch / 2 };
+    }
+
+    function drawScene(t) {
+      sceneCtx.clearRect(0, 0, W, H);
+      
+      for (const s of stars) {
+        const tw = 0.4 + 0.6 * (0.5 + 0.5 * Math.sin(t * 0.001 * s.speed + s.phase));
+        sceneCtx.globalAlpha = tw; sceneCtx.fillStyle = `hsl(${s.hue}, 100%, 85%)`;
+        sceneCtx.beginPath(); sceneCtx.arc(s.x, s.y, s.r, 0, Math.PI * 2); sceneCtx.fill();
+      }
+      sceneCtx.globalAlpha = 1;
+
+      if (Math.random() < 0.03 && comets.length < 8) {
+        comets.push({
+          x: Math.random() * W * 0.8,
+          y: -50,
+          vx: 2 + Math.random() * 3,
+          vy: 3 + Math.random() * 4,
+          life: 1,
+          length: 60 + Math.random() * 80
+        });
+      }
+
+      for (let i = comets.length - 1; i >= 0; i--) {
+        const c = comets[i];
+        c.x += c.vx; c.y += c.vy;
+        
+        const grad = sceneCtx.createLinearGradient(c.x, c.y, c.x - c.vx * 8, c.y - c.vy * 8);
+        grad.addColorStop(0, `rgba(255, 255, 255, ${c.life})`);
+        grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        
+        sceneCtx.strokeStyle = grad;
+        sceneCtx.lineWidth = 2;
+        sceneCtx.beginPath();
+        sceneCtx.moveTo(c.x, c.y);
+        sceneCtx.lineTo(c.x - c.vx * c.length/10, c.y - c.vy * c.length/10);
+        sceneCtx.stroke();
+
+        sceneCtx.fillStyle = `rgba(255, 255, 255, ${c.life})`;
+        sceneCtx.beginPath();
+        sceneCtx.arc(c.x, c.y, 2, 0, Math.PI * 2);
+        sceneCtx.fill();
+
+        if (c.x > W + 100 || c.y > H + 100) {
+          comets.splice(i, 1);
+        }
+      }
+    }
+
+    function updateHearts() {
+      cardVelX += -cardOffX * 0.012; cardVelY += -cardOffY * 0.012;
+      cardVelX *= 0.92; cardVelY *= 0.92;
+      cardOffX += cardVelX; cardOffY += cardVelY;
+      cardRotVel += -cardRot * 0.02; cardRotVel *= 0.9; cardRot += cardRotVel;
+      cardEl.style.transform = `translate(${cardOffX}px, ${cardOffY}px) rotate(${cardRot}deg)`;
+      const cr = getCardRect();
+
+      for (const h of hearts) {
+        if (mouse.x > -9000 && !mouse.overCard) {
+          const dx = h.x - mouse.x;
+          const dy = h.y - mouse.y;
+          const dist = Math.hypot(dx, dy) || 0.001;
+          
+          if (mouse.down) {
+            const force = 0.6;
+            h.vx += (-dx / dist) * force;
+            h.vy += (-dy / dist) * force;
+            if (dist < 50) { h.vx *= 0.9; h.vy *= 0.9; }
+          } else {
+            const R = 100;
+            if (dist < R) {
+              const f = (1 - dist / R) * 0.6;
+              h.vx += (dx / dist) * f;
+              h.vy += (dy / dist) * f;
+            }
+          }
+        }
+
+        h.wander += (Math.random() - 0.5) * 0.15;
+        h.vx += Math.cos(h.wander) * 0.04;
+        h.vy += Math.sin(h.wander) * 0.04;
+
+        h.vx *= 0.99; h.vy *= 0.99;
+        const sp = Math.hypot(h.vx, h.vy);
+        if (sp > 4) { h.vx = (h.vx / sp) * 4; h.vy = (h.vy / sp) * 4; }
+        
+        h.x += h.vx; h.y += h.vy;
+
+        const r = h.size * 0.4;
+        const cx2 = Math.max(cr.left, Math.min(h.x, cr.right));
+        const cy2 = Math.max(cr.top,  Math.min(h.y, cr.bottom));
+        const dx2 = h.x - cx2, dy2 = h.y - cy2;
+        const distSq = dx2 * dx2 + dy2 * dy2;
+
+        if (distSq < r * r) {
+          if (distSq < 0.0001) {
+            const dl = h.x - cr.left, dr = cr.right - h.x, dt = h.y - cr.top, db = cr.bottom - h.y;
+            const m = Math.min(dl, dr, dt, db);
+            if (m === dl) { h.x = cr.left - r; h.vx = -Math.abs(h.vx) - 1; }
+            else if (m === dr) { h.x = cr.right + r; h.vx = Math.abs(h.vx) + 1; }
+            else if (m === dt) { h.y = cr.top - r; h.vy = -Math.abs(h.vy) - 1; }
+            else { h.y = cr.bottom + r; h.vy = Math.abs(h.vy) + 1; }
+          } else {
+            const d = Math.sqrt(distSq); const nx = dx2 / d, ny = dy2 / d;
+            h.x = cx2 + nx * r; h.y = cy2 + ny * r;
+            const dot = h.vx * nx + h.vy * ny;
+            h.vx -= 2 * dot * nx; h.vy -= 2 * dot * ny;
+            h.vx *= 1.02; h.vy *= 1.02;
+          }
+        }
+        
+        if (h.x < r) { h.x = r; h.vx = Math.abs(h.vx) * 0.9; }
+        if (h.x > W - r) { h.x = W - r; h.vx = -Math.abs(h.vx) * 0.9; }
+        if (h.y < r) { h.y = r; h.vy = Math.abs(h.vy) * 0.9; }
+        if (h.y > H - r) { h.y = H - r; h.vy = -Math.abs(h.vy) * 0.9; }
+        h.rot += h.rotSpeed;
+      }
+    }
+
+    function drawHearts() {
+      heartsCtx.clearRect(0, 0, W, H);
+      for (const h of hearts) {
+        heartsCtx.save();
+        heartsCtx.translate(h.x, h.y); heartsCtx.rotate(h.rot);
+        heartsCtx.drawImage(heartSprite, -h.size / 2, -h.size / 2, h.size, h.size);
+        heartsCtx.restore();
+      }
+    }
+
+    function loop(t) {
+      drawScene(t); 
+      updateHearts(); 
+      drawHearts();
+      requestAnimationFrame(loop);
+    }
+    requestAnimationFrame(loop);
+  </script>
+</body>
+</html>
